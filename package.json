@@ -1,6 +1,6 @@
 {
   "name": "@cexy/hoonfca",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "type": "commonjs",
   "types": "src/types/index.d.ts",
   "description": "Rakib FCA - Advanced Facebook Chat API",
