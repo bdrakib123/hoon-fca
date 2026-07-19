@@ -4,7 +4,7 @@
 const path = require("path");
 const fs = require("fs");
 
-const ws = "nkxfca";
+const ws = "hoonfca";
 
 let h;
 const i = {};
@@ -315,11 +315,11 @@ function banner(message) {
 
 function credits() {
   if (!shouldLog('info')) return;
-  console.log("nkxfca");
-  console.log("Developed and maintained by NeoKEX");
-  console.log("GitHub: https://github.com/NeoKEX");
-  console.log("npm: https://www.npmjs.com/package/@neoaz07/nkxfca");
-  console.log("Based on nkxfca (@neoaz07/nkxfca) — credits: NeoKEX Team, ws3-fca, @dongdev/fca-unofficial");
+  console.log("hoonfca");
+  console.log("Developed and maintained by hoon");
+  console.log("GitHub: https://github.com/hoon6t9");
+  console.log("npm: https://www.npmjs.com/package/@cexy/hoonfca");
+  console.log("Based on hoonfca (@cexy/hoonfca) — credits:  ws3-fca, @dongdev/fca-unofficial");
 }
 
 function readLocalPackage() {
@@ -327,9 +327,9 @@ function readLocalPackage() {
     const pkgPath = path.resolve(__dirname, "..", "..", "package.json");
     const data = fs.readFileSync(pkgPath, "utf8");
     const json = JSON.parse(data);
-    return { name: json.name || "@neoaz07/nkxfca", version: json.version || "1.2.0" };
+    return { name: json.name || "@cexy/hoonfca", version: json.version || "1.2.0" };
   } catch (_) {
-    return { name: "@neoaz07/nkxfca", version: "1.2.0" };
+    return { name: "@cexy/hoonfca", version: "2.0.1" };
   }
 }
 
