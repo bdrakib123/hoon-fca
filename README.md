@@ -1,10 +1,10 @@
-🚀 Hoon FCA
+# 🚀 Hoon FCA
 
-«Advanced Facebook Chat API for Node.js with Cookie Login, MQTT, Auto Reconnect, Token Refresh and modern Messenger features.»
+> Advanced Facebook Chat API for Node.js with Cookie Login, MQTT, Auto Reconnect, Token Refresh and modern Messenger features.
 
 ---
 
-✨ Features
+## ✨ Features
 
 - 🍪 Cookie / AppState Login
 - ⚡ MQTT Real-Time Messaging
@@ -20,14 +20,17 @@
 
 ---
 
-📦 Installation
+## 📦 Installation
 
+```bash
 npm install @cexy/hoonfca
+```
 
 ---
 
-🚀 Quick Start
+## 🚀 Quick Start
 
+```
 const fs = require("fs");
 const { login } = require("@cexy/hoonfca");
 
@@ -56,43 +59,26 @@ login(
     });
   }
 );
+```
 
 ---
 
-📋 Requirements
+## 📋 Requirements
 
-- Node.js v20.0.0 or higher
-
----
-
-📚 Documentation
-
-- Cookie / AppState Login
-- MQTT Messaging
-- Auto Reconnect
-- Token Refresh
-- Thread & Group APIs
-- User APIs
-- Themes & Stickers
-- Health Status
+- Node.js **20+**
 
 ---
 
-🔗 Links
+## 🔗 Links
 
-GitHub
-
-https://github.com/hoon6t9/hinata-fca
-
-NPM
-
-https://www.npmjs.com/package/@cexy/hoonfca
+- **GitHub:** https://github.com/hoon6t9/hinata-fca
+- **NPM:** https://www.npmjs.com/package/@cexy/hoonfca
 
 ---
 
-❤️ Credits
+## ❤️ Credits
 
-Developed & Maintained by Hoon
+Developed & Maintained by **Hoon**
 
 Inspired by:
 
@@ -101,12 +87,14 @@ Inspired by:
 
 ---
 
-📄 License
+## 📄 License
 
-This project is licensed under the MIT License.
+MIT License
 
 ---
 
-<p align="center">
-Made with ❤️ by <b>Hoon</b>
-</p>
+<div align="center">
+
+Made with ❤️ by **Hoon**
+
+</div>
