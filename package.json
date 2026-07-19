@@ -9,7 +9,8 @@
     "index.js",
     "src/",
     "examples/",
-    "LICENSE"
+    "LICENSE",
+    "README.md"
   ],
   "repository": {
     "type": "git",
