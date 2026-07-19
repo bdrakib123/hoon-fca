@@ -327,7 +327,7 @@ function readLocalPackage() {
     const pkgPath = path.resolve(__dirname, "..", "..", "package.json");
     const data = fs.readFileSync(pkgPath, "utf8");
     const json = JSON.parse(data);
-    return { name: json.name || "@cexy/hoonfca", version: json.version || "1.2.0" };
+    return { name: json.name || "@cexy/hoonfca", version: json.version || "2.0.1" };
   } catch (_) {
     return { name: "@cexy/hoonfca", version: "2.0.1" };
   }
