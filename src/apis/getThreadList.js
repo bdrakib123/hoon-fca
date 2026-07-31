@@ -1,4 +1,3 @@
-
 "use strict";
 
 const utils = require('../utils');
@@ -197,28 +196,61 @@ module.exports = function (defaultFuncs, api, ctx) {
     };
 
     try {
-      const resData = await defaultFuncs
+      let resData = await defaultFuncs
         .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
         .then(utils.parseAndCheckLogin(ctx, defaultFuncs));
 
-      if (!resData || !Array.isArray(resData) || resData.length === 0) {
+      // Normalize response for compatibility across FCA versions:
+      // - Older behavior returned an array of batch entries.
+      // - Newer behavior may return a single object for the whole batch.
+      if (!resData) {
         throw new Error("getThreadList: Invalid response from server");
       }
 
-      const lastResult = resData[resData.length - 1];
+      const normalized = Array.isArray(resData) ? resData : [resData];
+
+      if (normalized.length === 0) {
+        throw new Error("getThreadList: Invalid response from server");
+      }
+
+      // Find the batch item that actually contains the GraphQL result payload.
+      const payloadEntry = normalized.find((entry) => {
+        // Cases to support:
+        // 1) entry.o0 && entry.o0.data.viewer.message_threads
+        // 2) entry.data && entry.data.viewer && entry.data.viewer.message_threads
+        return (
+          (entry && entry.o0 && entry.o0.data && entry.o0.data.viewer && entry.o0.data.viewer.message_threads) ||
+          (entry && entry.data && entry.data.viewer && entry.data.viewer.message_threads)
+        );
+      });
+
+      if (!payloadEntry) {
+        // If no payload entry found, surface the original structure to help debugging.
+        throw new Error("getThreadList: Invalid data structure in response");
+      }
+
+      // Preserve original error checks: error_results / successful_results may be on the last array item
+      // or on the payloadEntry itself depending on the response shape.
+      const lastResult = normalized[normalized.length - 1];
       if (lastResult && lastResult.error_results && lastResult.error_results > 0) {
-        throw new Error(JSON.stringify(resData[0]?.o0?.errors || "Unknown error"));
+        throw new Error(JSON.stringify((normalized[0] && normalized[0].o0 && normalized[0].o0.errors) || "Unknown error"));
       }
 
       if (lastResult && lastResult.successful_results === 0) {
         throw new Error("getThreadList: there was no successful_results");
       }
 
-      if (!resData[0] || !resData[0].o0 || !resData[0].o0.data) {
+      // Extract nodes supporting both shapes:
+      const nodes =
+        (payloadEntry.o0 && payloadEntry.o0.data && payloadEntry.o0.data.viewer && payloadEntry.o0.data.viewer.message_threads && payloadEntry.o0.data.viewer.message_threads.nodes) ||
+        (payloadEntry.data && payloadEntry.data.viewer && payloadEntry.data.viewer.message_threads && payloadEntry.data.viewer.message_threads.nodes);
+
+      if (!nodes || !Array.isArray(nodes)) {
         throw new Error("getThreadList: Invalid data structure in response");
       }
 
-      let nodes = resData[0].o0.data.viewer.message_threads.nodes;
+      // If user requested a timestamp, original code removed the first node (the duplicate),
+      // preserve that behavior:
       if (timestamp) {
         nodes.shift();
       }
