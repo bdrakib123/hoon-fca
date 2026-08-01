@@ -131,7 +131,13 @@ function formatDeltaMessage(m) {
 
         const messageReply = m.delta.messageReply ? {
             messageID: m.delta.messageReply.messageID,
-            senderID: formatID(String(m.delta.messageReply.senderID || m.delta.messageReply.senderId || '')),
+            senderID: formatID(String(
+    m.delta.messageReply.senderID ??
+    m.delta.messageReply.senderId ??
+    m.delta.messageReply.senderFbId ??
+    m.delta.messageReply.actorFbId ??
+    ""
+)),
             body: m.delta.messageReply.body,
             attachments: m.delta.messageReply.attachments,
             timestamp: m.delta.messageReply.timestamp,
