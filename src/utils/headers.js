@@ -19,8 +19,9 @@ function sanitizeHeaderValue(value) {
         } catch (_) {}
     }
 
-    // Remove control chars (0x00-0x08, 0x0A-0x1F), DEL (0x7F), CR, LF, brackets
-    str = str.replace(/[\x00-\x08\x0A-\x1F\x7F\r\n\[\]]/g, '').trim();
+    // Remove control chars (0x00-0x08, 0x0A-0x1F), DEL (0x7F), CR, LF
+    // NOTE: Do NOT remove square brackets or other punctuation that may be valid in header values.
+    str = str.replace(/[\x00-\x08\x0A-\x1F\x7F\r\n]/g, '').trim();
     return str;
 }
 
