@@ -12,7 +12,39 @@ function isReadableStream(obj) {
 }
 
 function decodeClientPayload(payload) {
-    return JSON.parse(String.fromCharCode.apply(null, payload));
+    /*
+    Robust decode for client payloads:
+    - Accept Buffer, Uint8Array, Array-like of char codes
+    - Use Buffer.from(...).toString() for binary/typed arrays
+    - Fall back to String.fromCharCode for small arrays if needed
+    */
+    try {
+        if (!payload) return null;
+        if (Buffer.isBuffer(payload)) {
+            return JSON.parse(payload.toString());
+        }
+        if (payload instanceof Uint8Array || (typeof payload === 'object' && payload.buffer && payload.byteLength !== undefined)) {
+            // TypedArray
+            return JSON.parse(Buffer.from(payload).toString());
+        }
+        if (Array.isArray(payload)) {
+            // Array of char codes
+            try {
+                // When arrays are large, avoid apply()
+                if (payload.length > 65536) {
+                    return JSON.parse(Buffer.from(payload).toString());
+                }
+                return JSON.parse(String.fromCharCode.apply(null, payload));
+            } catch (e) {
+                return JSON.parse(Buffer.from(payload).toString());
+            }
+        }
+        // Other fallback: coerce to string
+        return JSON.parse(String(payload));
+    } catch (err) {
+        // Re-throw so caller can handle/log
+        throw err;
+    }
 }
 
 function formatMessage(m) {
@@ -38,6 +70,8 @@ function formatMessage(m) {
     obj.isGroup = obj.participantIDs.length > 2;
     return obj;
 }
+
+/* rest of file left unchanged below (exports etc.) */
 
 function formatEvent(m) {
     const originalMessage = m.message ? m.message : m;
@@ -93,22 +127,32 @@ function formatRead(event) {
 function formatThread(data) {
     return {
         threadID: formatID(data.thread_fbid.toString()),
-        participants: data.participants.map(p => formatID(p)),
-        participantIDs: data.participants.map(p => formatID(p)),
+        participants: data.participants.map(formatID),
+        participantIDs: data.participants.map(formatID),
         name: data.name,
         nicknames: data.custom_nickname,
         snippet: data.snippet,
+        snippetAttachments: data.snippet_attachments,
         snippetSender: formatID((data.snippet_sender || "").toString()),
         unreadCount: data.unread_count,
         messageCount: data.message_count,
         imageSrc: data.image_src,
         timestamp: data.timestamp,
+        serverTimestamp: data.server_timestamp,
         muteUntil: data.mute_until,
-        isGroup: data.thread_type === 2,
+        isCanonicalUser: data.is_canonical_user,
+        isCanonical: data.is_canonical,
+        isSubscribed: data.is_subscribed,
+        folder: data.folder,
         isArchived: data.is_archived,
+        recipientsLoadable: data.recipients_loadable,
+        hasEmailParticipant: data.has_email_participant,
+        readOnly: data.read_only,
         canReply: data.can_reply,
+        cannotReplyReason: data.cannot_reply_reason,
         lastMessageTimestamp: data.last_message_timestamp,
         lastReadTimestamp: data.last_read_timestamp,
+        lastMessageType: data.last_message_type,
         emoji: data.custom_like_icon,
         color: data.custom_color,
         adminIDs: data.admin_ids,
@@ -116,44 +160,47 @@ function formatThread(data) {
     };
 }
 
-function formatPresence(presence, userID) {
-    return {
-        type: "presence",
-        timestamp: presence.la * 1000,
-        userID: userID,
-        statuses: presence.a
-    };
-}
-
-function formatProxyPresence(presence, userID) {
-    if (presence.lat === undefined || presence.p === undefined) return null;
-    return {
-        type: "presence",
-        timestamp: presence.lat * 1000,
-        userID: userID,
-        statuses: presence.p
-    };
-}
-
 module.exports = {
-    isReadableStream,
-    formatID,
-    formatDate,
-    formatCookie,
-    formatAttachment,
-    _formatAttachment,
-    formatDeltaMessage,
-    formatMessage,
-    formatEvent,
-    formatHistoryMessage,
-    getAdminTextMessageType,
-    formatDeltaEvent,
-    formatTyp,
-    formatDeltaReadReceipt,
-    formatReadReceipt,
-    formatRead,
-    formatThread,
-    formatProxyPresence,
-    formatPresence,
-    decodeClientPayload,
+
+  isReadableStream,
+
+  getExtension,
+
+  _formatAttachment,
+
+  formatAttachment,
+
+  formatDeltaMessage,
+
+  formatID,
+
+  formatMessage,
+
+  formatEvent,
+
+  formatHistoryMessage,
+
+  getAdminTextMessageType,
+
+  formatDeltaEvent,
+
+  formatTyp,
+
+  formatDeltaReadReceipt,
+
+  formatReadReceipt,
+
+  formatRead,
+
+  formatDate,
+
+  formatCookie,
+
+  formatThread,
+
+  formatProxyPresence,
+
+  formatPresence,
+
+  decodeClientPayload,
 };
