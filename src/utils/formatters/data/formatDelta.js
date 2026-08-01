@@ -208,7 +208,11 @@ const threadID =
             mentions: mentions,
             timestamp: md.timestamp || md.timestamp_ms || null,
             isGroup: !!(threadFbId),
-            participantIDs: m.delta.participants || [],
+            participantIDs:
+    m.delta.participants ||
+    md.participants ||
+    md.participantIDs ||
+    [],
             messageReply: messageReply
         };
     } catch (err) {
