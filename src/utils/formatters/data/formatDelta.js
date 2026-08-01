@@ -261,7 +261,13 @@ function formatDeltaEvent(m) {
         logMessageData,
         logMessageBody: m.messageMetadata && m.messageMetadata.adminText,
         timestamp: m.messageMetadata && (m.messageMetadata.timestamp || null),
-        author: m.messageMetadata && m.messageMetadata.actorFbId,
+        author: m.messageMetadata &&
+(
+    m.messageMetadata.actorFbId ??
+    m.messageMetadata.actorId ??
+    m.messageMetadata.senderFbId ??
+    m.messageMetadata.senderId
+),
         participantIDs: m.participants || []
     };
 }
