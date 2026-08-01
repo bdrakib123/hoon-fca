@@ -667,21 +667,21 @@ function formatDeltaMessage(m) {
                 mdata = mentionData.map(mt => ({
                     i: mt.i || mt.id || mt.user_id || mt.uid,
                     o: mt.o ?? mt.offset ?? 0,
-                    l: mt.l ?? mt.length ?? 0
+                    l: mt.length ?? mt.l ?? 0
                 }));
             } else if (xmd.mentions) {
                 const mentionData = Array.isArray(xmd.mentions) ? xmd.mentions : [xmd.mentions];
                 mdata = mentionData.map(mt => ({
                     i: mt.i || mt.id || mt.user_id || mt.uid,
                     o: mt.o ?? mt.offset ?? 0,
-                    l: mt.l ?? mt.length ?? 0
+                    l: mt.length ?? mt.l ?? 0
                 }));
             } else if (xmd.tagged) {
                 const taggedData = Array.isArray(xmd.tagged) ? xmd.tagged : [xmd.tagged];
                 mdata = taggedData.map(t => ({
                     i: t.i || t.id || t.user_id || t.uid,
                     o: t.o ?? t.offset ?? 0,
-                    l: t.l ?? t.length ?? 0
+                    l: t.length ?? t.l ?? 0
                 }));
             }
         } catch (e) {}
@@ -756,26 +756,43 @@ function formatDeltaMessage(m) {
     
     const messageReply = m.delta.messageReply ? {
         messageID: m.delta.messageReply.messageID,
-        senderID: formatID(m.delta.messageReply.senderID),
+        senderID: formatID(String(m.delta.messageReply.senderID || "")),
         body: m.delta.messageReply.body,
         attachments: m.delta.messageReply.attachments,
         timestamp: m.delta.messageReply.timestamp,
         isReply: true
     } : null;
 
+    // Backward-compatible sender/thread extraction
+    const senderID = formatID(String(
+        md?.actorFbId ??
+        md?.actor ??
+        md?.senderFbId ??
+        md?.sender ??
+        m?.delta?.senderID ??
+        m?.delta?.from ??
+        ""
+    ));
+
+    const threadFBID =
+        md?.threadKey?.threadFbId ??
+        md?.threadKey?.otherUserFbId ??
+        m?.delta?.threadID ??
+        m?.delta?.threadFbId ??
+        m?.delta?.otherUserFbId ??
+        "";
+
     return {
         type: "message",
-        senderID: formatID(md.actorFbId.toString()),
-        body: body,
-        threadID: formatID(
-            (md.threadKey.threadFbId || md.threadKey.otherUserFbId).toString()
-        ),
+        senderID,
+        body,
+        threadID: formatID(String(threadFBID)),
         messageID: md.messageId,
         offlineThreadingId: md.offlineThreadingId,
         attachments: (m.delta.attachments || []).map(v => _formatAttachment(v)),
         mentions: mentions,
         timestamp: md.timestamp,
-        isGroup: !!md.threadKey.threadFbId,
+        isGroup: !!md?.threadKey?.threadFbId,
         participantIDs: m.delta.participants,
         messageReply: messageReply
     };
