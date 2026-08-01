@@ -7,26 +7,31 @@ const e2ee = require('../security/e2ee');
 function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
   if (v.delta.class == "NewMessage") {
 
-    if (ctx.globalOptions.pageID && ctx.globalOptions.pageID != v.queue) return;
+    // Robust pageID filter: only skip if pageID exists and queue differs (both normalized)
+    if (typeof ctx.globalOptions.pageID !== 'undefined' && String(ctx.globalOptions.pageID) !== String(v.queue || '')) return;
     (function resolveAttachmentUrl(i) {
       if (!v.delta.attachments || i == v.delta.attachments.length || utils.getType(v.delta.attachments) !== "Array") {
         var fmtMsg;
         try {
           fmtMsg = utils.formatDeltaMessage(v);
         } catch (err) {
+          utils.error("parseDelta", "formatDeltaMessage error:", err && err.message ? err.message : err);
           return;
         }
         if (fmtMsg) {
             try {
-              if (e2ee.isEnabled(ctx) && !!v.delta.threadKey.threadFbId) {
+              if (e2ee.isEnabled(ctx) && !!v.delta.threadKey && !!v.delta.threadKey.threadFbId) {
                 const dec = e2ee.decrypt(ctx, fmtMsg.threadID, fmtMsg.body);
                 if (dec !== null) fmtMsg.body = dec;
               }
-            } catch (_) {}
+            } catch (e) {
+              utils.error("parseDelta", "e2ee.decrypt error:", e && e.message ? e.message : e);
+            }
             if (ctx.globalOptions.autoMarkDelivery) {
                 api.markAsDelivered(fmtMsg.threadID, fmtMsg.messageID);
             }
-            if (!ctx.globalOptions.selfListen && fmtMsg.senderID === ctx.userID) {
+            // Normalize type comparison for selfListen
+            if (!ctx.globalOptions.selfListen && String(fmtMsg.senderID) === String(ctx.userID)) {
                 return;
             }
             return globalCallback(null, fmtMsg);
@@ -46,7 +51,15 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
   }
 
   if (v.delta.class == "ClientPayload") {
-    var clientPayload = utils.decodeClientPayload(v.delta.payload);
+    // Guard decode: payloads may be large buffers or typed arrays; ensure we don't throw to whole handler
+    var clientPayload;
+    try {
+      clientPayload = utils.decodeClientPayload(v.delta.payload);
+    } catch (err) {
+      utils.error("parseDelta", "decodeClientPayload failed:", err && err.message ? err.message : err);
+      return; // Can't decode: nothing we can do for this ClientPayload
+    }
+
     if (clientPayload && clientPayload.deltas) {
       for (var i in clientPayload.deltas) {
         var delta = clientPayload.deltas[i];
@@ -54,27 +67,30 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
         if (delta.deltaMessageReaction && !!ctx.globalOptions.listenEvents) {
             const reactionEvent = {
               type: "message_reaction",
-              threadID: (delta.deltaMessageReaction.threadKey.threadFbId || delta.deltaMessageReaction.threadKey.otherUserFbId).toString(),
+              threadID: String((delta.deltaMessageReaction.threadKey && (delta.deltaMessageReaction.threadKey.threadFbId || delta.deltaMessageReaction.threadKey.otherUserFbId)) || ""),
               messageID: delta.deltaMessageReaction.messageId,
               reaction: delta.deltaMessageReaction.reaction,
-              senderID: delta.deltaMessageReaction.userId.toString(),
-              userID: delta.deltaMessageReaction.userId.toString()
+              senderID: String(delta.deltaMessageReaction.userId),
+              userID: String(delta.deltaMessageReaction.userId)
             };
 
-            if (!ctx.globalOptions.selfListen && reactionEvent.senderID === ctx.userID) {
-              return;
+            // Use continue to process remaining deltas (do not return from parseDelta)
+            if (!ctx.globalOptions.selfListen && String(reactionEvent.senderID) === String(ctx.userID)) {
+              continue;
             }
 
             globalCallback(null, reactionEvent);
+            continue;
         } else if (delta.deltaRecallMessageData && !!ctx.globalOptions.listenEvents) {
             globalCallback(null, {
               type: "message_unsend",
-              threadID: (delta.deltaRecallMessageData.threadKey.threadFbId || delta.deltaRecallMessageData.threadKey.otherUserFbId).toString(),
+              threadID: String((delta.deltaRecallMessageData.threadKey && (delta.deltaRecallMessageData.threadKey.threadFbId || delta.deltaRecallMessageData.threadKey.otherUserFbId)) || ""),
               messageID: delta.deltaRecallMessageData.messageID,
-              senderID: delta.deltaRecallMessageData.senderID.toString(),
+              senderID: String(delta.deltaRecallMessageData.senderID),
               deletionTimestamp: delta.deltaRecallMessageData.deletionTimestamp,
               timestamp: delta.deltaRecallMessageData.timestamp
             });
+            continue;
         } else if (delta.deltaMessageReply) {
           var mdata = delta.deltaMessageReply.message?.data?.prng ? JSON.parse(delta.deltaMessageReply.message.data.prng) : [];
           var mentions = {};
@@ -84,12 +100,12 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
 
           var callbackToReturn = {
             type: "message_reply",
-            threadID: (delta.deltaMessageReply.message.messageMetadata.threadKey.threadFbId || delta.deltaMessageReply.message.messageMetadata.threadKey.otherUserFbId).toString(),
+            threadID: String((delta.deltaMessageReply.message.messageMetadata.threadKey.threadFbId || delta.deltaMessageReply.message.messageMetadata.threadKey.otherUserFbId) || ""),
             messageID: delta.deltaMessageReply.message.messageMetadata.messageId,
-            senderID: delta.deltaMessageReply.message.messageMetadata.actorFbId.toString(),
-            attachments: delta.deltaMessageReply.message.attachments.map(att => {
+            senderID: String(delta.deltaMessageReply.message.messageMetadata.actorFbId),
+            attachments: (delta.deltaMessageReply.message.attachments || []).map(att => {
               try {
-                var mercury = JSON.parse(att.mercuryJSON);
+                var mercury = att.mercuryJSON ? JSON.parse(att.mercuryJSON) : {};
                 Object.assign(att, mercury);
                 return utils._formatAttachment(att);
               } catch (ex) {
@@ -97,17 +113,19 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
               }
             }),
             body: (delta.deltaMessageReply.message.body || ""),
-            isGroup: !!delta.deltaMessageReply.message.messageMetadata.threadKey.threadFbId,
+            isGroup: !!(delta.deltaMessageReply.message.messageMetadata.threadKey && delta.deltaMessageReply.message.messageMetadata.threadKey.threadFbId),
             mentions: mentions,
             timestamp: delta.deltaMessageReply.message.messageMetadata.timestamp,
-            participantIDs: (delta.deltaMessageReply.message.participants || []).map(e => e.toString())
+            participantIDs: (delta.deltaMessageReply.message.participants || []).map(e => String(e))
           };
           try {
             if (e2ee.isEnabled(ctx) && callbackToReturn.isGroup) {
               const dec = e2ee.decrypt(ctx, callbackToReturn.threadID, callbackToReturn.body);
               if (dec !== null) callbackToReturn.body = dec;
             }
-          } catch (_) {}
+          } catch (e) {
+            utils.error("parseDelta", "e2ee.decrypt reply error:", e && e.message ? e.message : e);
+          }
 
           if (delta.deltaMessageReply.repliedToMessage) {
             var rmentions = {};
@@ -117,12 +135,12 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
             }
 
             callbackToReturn.messageReply = {
-              threadID: (delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey.threadFbId || delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey.otherUserFbId).toString(),
+              threadID: String((delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey.threadFbId || delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey.otherUserFbId) || ""),
               messageID: delta.deltaMessageReply.repliedToMessage.messageMetadata.messageId,
-              senderID: delta.deltaMessageReply.repliedToMessage.messageMetadata.actorFbId.toString(),
-              attachments: delta.deltaMessageReply.repliedToMessage.attachments.map(att => {
+              senderID: String(delta.deltaMessageReply.repliedToMessage.messageMetadata.actorFbId),
+              attachments: (delta.deltaMessageReply.repliedToMessage.attachments || []).map(att => {
                  try {
-                    var mercury = JSON.parse(att.mercuryJSON);
+                    var mercury = att.mercuryJSON ? JSON.parse(att.mercuryJSON) : {};
                     Object.assign(att, mercury);
                     return utils._formatAttachment(att);
                   } catch (ex) {
@@ -130,21 +148,24 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                   }
               }),
               body: delta.deltaMessageReply.repliedToMessage.body || "",
-              isGroup: !!delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey.threadFbId,
+              isGroup: !!(delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey && delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey.threadFbId),
               mentions: rmentions,
               timestamp: delta.deltaMessageReply.repliedToMessage.messageMetadata.timestamp,
-              participantIDs: (delta.deltaMessageReply.repliedToMessage.participants || []).map(e => e.toString())
+              participantIDs: (delta.deltaMessageReply.repliedToMessage.participants || []).map(e => String(e))
             };
             try {
               if (e2ee.isEnabled(ctx) && callbackToReturn.messageReply.isGroup) {
                 const dec2 = e2ee.decrypt(ctx, callbackToReturn.messageReply.threadID, callbackToReturn.messageReply.body);
                 if (dec2 !== null) callbackToReturn.messageReply.body = dec2;
               }
-            } catch (_) {}
+            } catch (e) {
+              utils.error("parseDelta", "e2ee.decrypt repliedToMessage error:", e && e.message ? e.message : e);
+            }
           }
           if (ctx.globalOptions.autoMarkDelivery) api.markAsDelivered(callbackToReturn.threadID, callbackToReturn.messageID);
-          if (!ctx.globalOptions.selfListen && callbackToReturn.senderID === ctx.userID) return;
-          return globalCallback(null, callbackToReturn);
+          if (!ctx.globalOptions.selfListen && String(callbackToReturn.senderID) === String(ctx.userID)) continue;
+          globalCallback(null, callbackToReturn);
+          continue;
         }
       }
       return;
@@ -158,6 +179,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
       try {
         fmtMsg = utils.formatDeltaReadReceipt(v.delta);
       } catch (err) {
+        utils.error("parseDelta", "formatDeltaReadReceipt error:", err && err.message ? err.message : err);
         return;
       }
       if (fmtMsg) globalCallback(null, fmtMsg);
@@ -188,6 +210,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
           try {
             fmtEvent = utils.formatDeltaEvent(v.delta);
           } catch (err) {
+            utils.error("parseDelta", "formatDeltaEvent error:", err && err.message ? err.message : err);
             return;
           }
           if (fmtEvent) globalCallback(null, fmtEvent);
@@ -201,9 +224,10 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
       try {
         fmtEvent2 = utils.formatDeltaEvent(v.delta);
       } catch (err) {
+        utils.error("parseDelta", "formatDeltaEvent error:", err && err.message ? err.message : err);
         return;
       }
-      if (!ctx.globalOptions.selfListen && fmtEvent2 && fmtEvent2.author && fmtEvent2.author.toString() === ctx.userID) return;
+      if (!ctx.globalOptions.selfListen && fmtEvent2 && fmtEvent2.author && String(fmtEvent2.author) === String(ctx.userID)) return;
       if (!ctx.loggedIn) return;
       if (fmtEvent2) globalCallback(null, fmtEvent2);
       break;
@@ -267,7 +291,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
               }
             }
           })
-          .catch(err => {});
+          .catch(err => { utils.error("parseDelta", "forcedFetch graphql error:", err && err.message ? err.message : err); });
       }
       break;
   }
