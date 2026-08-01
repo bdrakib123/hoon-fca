@@ -116,7 +116,11 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
             isGroup: !!(delta.deltaMessageReply.message.messageMetadata.threadKey && delta.deltaMessageReply.message.messageMetadata.threadKey.threadFbId),
             mentions: mentions,
             timestamp: delta.deltaMessageReply.message.messageMetadata.timestamp,
-            participantIDs: (delta.deltaMessageReply.message.participants || []).map(e => String(e))
+            participantIDs: (
+              delta.deltaMessageReply.message.participants ||
+              delta.deltaMessageReply.message.participantIDs ||
+              []
+            ).map(e => String(e))
           };
           try {
             if (e2ee.isEnabled(ctx) && callbackToReturn.isGroup) {
@@ -151,7 +155,11 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
               isGroup: !!(delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey && delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey.threadFbId),
               mentions: rmentions,
               timestamp: delta.deltaMessageReply.repliedToMessage.messageMetadata.timestamp,
-              participantIDs: (delta.deltaMessageReply.repliedToMessage.participants || []).map(e => String(e))
+              participantIDs: (
+                delta.deltaMessageReply.repliedToMessage.participants ||
+                delta.deltaMessageReply.repliedToMessage.participantIDs ||
+                []
+              ).map(e => String(e))
             };
             try {
               if (e2ee.isEnabled(ctx) && callbackToReturn.messageReply.isGroup) {
