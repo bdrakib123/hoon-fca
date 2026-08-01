@@ -139,13 +139,61 @@ function formatDeltaMessage(m) {
         } : null;
 
         // Safe actor and thread extraction with fallbacks
-        const actor = md.actorFbId || md.actorId || md.actor || null;
-        const threadKey = md.threadKey || {};
-        const threadFbId = threadKey.threadFbId || threadKey.thread_fbid || threadKey.threadFbId || null;
-        const otherUserFbId = threadKey.otherUserFbId || threadKey.other_user_fbid || null;
+        // -------- Robust Facebook ID Detection --------
 
-        const senderID = actor ? formatID(String(actor)) : null;
-        const threadID = (threadFbId || otherUserFbId) ? formatID(String(threadFbId || otherUserFbId)) : null;
+const actor =
+    md.actorFbId ??
+    md.actorFbid ??
+    md.actorID ??
+    md.actorId ??
+    md.actor ??
+    md.senderFbId ??
+    md.senderID ??
+    md.senderId ??
+    md.sender_id ??
+    md.userFbId ??
+    md.userID ??
+    md.userId ??
+    m.delta?.senderFbId ??
+    m.delta?.senderID ??
+    m.delta?.senderId ??
+    m.delta?.actorFbId ??
+    null;
+
+const threadKey = md.threadKey || {};
+
+const threadFbId =
+    threadKey.threadFbId ??
+    threadKey.thread_fbid ??
+    threadKey.threadID ??
+    threadKey.threadId ??
+    threadKey.id ??
+    null;
+
+const otherUserFbId =
+    threadKey.otherUserFbId ??
+    threadKey.other_user_fbid ??
+    threadKey.otherUserId ??
+    threadKey.otherUserID ??
+    null;
+
+const senderID = actor != null
+    ? formatID(String(actor))
+    : formatID(
+        String(
+            threadKey.otherUserFbId ??
+            threadKey.other_user_fbid ??
+            ""
+        )
+    ) || null;
+
+const threadID =
+    threadFbId != null
+        ? formatID(String(threadFbId))
+        : otherUserFbId != null
+            ? formatID(String(otherUserFbId))
+            : senderID;
+
 
         return {
             type: "message",
