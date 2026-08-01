@@ -17,10 +17,12 @@ class InputValidator {
    * @returns {boolean}
    */
   isValidThreadID(threadID) {
-    if (!threadID) return false;
-    const id = String(threadID).trim();
+    if (threadID === null || threadID === undefined) return false;
+    const idStr = String(threadID).trim();
+    // Strip leading "fbid:" or "id:" if present (common formats)
+    const normalized = idStr.replace(/^(?:fb)?id[:.]/i, "");
     // Thread IDs are numeric, can be up to 20 digits
-    return /^\d{1,20}$/.test(id);
+    return /^\d{1,20}$/.test(normalized);
   }
 
   /**
