@@ -71,7 +71,7 @@ login(
 
 ## 🔗 Links
 
-- **GitHub:** https://github.com/hoon6t9/hinata-fca
+- **GitHub:** https://github.com/hoon6t9/hoon-fca
 - **NPM:** https://www.npmjs.com/package/@cexy/hoonfca
 
 ---
