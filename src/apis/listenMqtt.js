@@ -575,21 +575,16 @@ async function listenMqtt(defaultFuncs, api, ctx, globalCallback, scheduleReconn
             let jsonMessage = Buffer.isBuffer(message) ? Buffer.from(message).toString() : message;
             try { jsonMessage = JSON.parse(jsonMessage); } catch (_) { jsonMessage = {}; }
 
-            // Safe coercion helper to avoid TypeError on undefined/null
-            const safeToString = (v) => (v === null || v === undefined) ? "" : String(v);
-
             if (jsonMessage.type === "jewel_requests_add") {
-                const actor = safeToString(jsonMessage.from ?? jsonMessage.actorFbId ?? jsonMessage.userId ?? "");
                 globalCallback(null, { 
                     type: "friend_request_received", 
-                    actorFbId: actor, 
+                    actorFbId: jsonMessage.from.toString(), 
                     timestamp: Date.now().toString() 
                 });
             } else if (jsonMessage.type === "jewel_requests_remove_old") {
-                const actor = safeToString(jsonMessage.from ?? jsonMessage.actorFbId ?? jsonMessage.userId ?? "");
                 globalCallback(null, { 
                     type: "friend_request_cancel", 
-                    actorFbId: actor, 
+                    actorFbId: jsonMessage.from.toString(), 
                     timestamp: Date.now().toString() 
                 });
             } else if (topic === "/t_ms") {
@@ -609,13 +604,11 @@ async function listenMqtt(defaultFuncs, api, ctx, globalCallback, scheduleReconn
                     }
                 }
             } else if (topic === "/thread_typing" || topic === "/orca_typing_notifications") {
-                const senderVal = jsonMessage.sender_fbid ?? jsonMessage.senderFbId ?? jsonMessage.from ?? "";
-                const threadVal = jsonMessage.thread ?? jsonMessage.sender_fbid ?? jsonMessage.senderFbId ?? "";
                 const typ = {
                     type: "typ",
                     isTyping: !!jsonMessage.state,
-                    from: safeToString(senderVal),
-                    threadID: utils.formatID(safeToString(threadVal))
+                    from: jsonMessage.sender_fbid.toString(),
+                    threadID: utils.formatID((jsonMessage.thread || jsonMessage.sender_fbid).toString())
                 };
                 globalCallback(null, typ);
             } else if (topic === "/orca_presence") {
@@ -978,7 +971,7 @@ module.exports = (defaultFuncs, api, ctx, opts) => {
                 throw { error: "getSeqID: no successful results" };
             }
             
-            const syncSeqId = resData[0] && resData[0].o0 && resData[0].o0.data && resData[0].o0.data.viewer && resData[0].o0.data.viewer.message_threads && resData[0].o0.data.viewer.message_thre[...]
+            const syncSeqId = resData[0] && resData[0].o0 && resData[0].o0.data && resData[0].o0.data.viewer && resData[0].o0.data.viewer.message_threads && resData[0].o0.data.viewer.message_threads.sync_sequence_id;
             if (syncSeqId) {
                 ctx.lastSeqId = syncSeqId;
                 ctx._cycling = false;
