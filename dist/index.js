@@ -15181,6 +15181,7 @@ function createAuthCore(opts = {}) {
         headers,
         data: body,
         timeout: 6e4,
+        maxRedirects: 0,
         validateStatus: () => true
       });
       if (response.status === 200 && response.data) {
