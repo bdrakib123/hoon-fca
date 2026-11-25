@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- Rebranded the npm package as `@cexi/hoonfca` and reset the published package version to `1.0.0`.
+- Rebranded the npm package as `@cexi/hoonfca` and set its release version to `1.0.0`.
 - Renamed the GitHub repository to `bdrakib123/hoon-fca` and updated package metadata, documentation, configuration defaults, and compiled distribution references.
 
 ### Security
