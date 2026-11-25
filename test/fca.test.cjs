@@ -991,6 +991,21 @@ test("optional live login works when credentials are provided", async () => {
   };
 });
 
+test("external login API does not follow redirects with credentials", async () => {
+  const { createAuthCore } = require("../src/core/auth-helpers.ts");
+  let requestOptions;
+  const auth = createAuthCore({
+    config: { apiServer: "https://trusted.example" },
+    axiosBase: async (options) => {
+      requestOptions = options;
+      return { status: 401, data: { error: "test response" } };
+    }
+  });
+
+  await auth.loginViaAPI("user@example.invalid", "not-a-real-password");
+  assert.strictEqual(requestOptions.maxRedirects, 0);
+});
+
 async function main() {
   let passed = 0;
   let skipped = 0;
@@ -1025,17 +1040,3 @@ main().catch((error) => {
 });
 
 
-test("external login API does not follow redirects with credentials", async () => {
-  const { createAuthCore } = require("../src/core/auth-helpers.ts");
-  let requestOptions;
-  const auth = createAuthCore({
-    config: { apiServer: "https://trusted.example" },
-    axiosBase: async (options) => {
-      requestOptions = options;
-      return { status: 401, data: { error: "test response" } };
-    }
-  });
-
-  await auth.loginViaAPI("user@example.invalid", "not-a-real-password");
-  assert.strictEqual(requestOptions.maxRedirects, 0);
-});
