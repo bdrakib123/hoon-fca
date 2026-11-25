@@ -789,6 +789,20 @@ test("package export validation checks files without loading package entrypoints
   assert.strictEqual(report.targets.types, "./dist/index.d.ts");
 });
 
+test("published CJS and ESM bundles contain the secure external-login defaults", () => {
+  const cjsBundle = fs.readFileSync(path.join(__dirname, "../dist/index.js"), "utf8");
+  const esmBundle = fs.readFileSync(path.join(__dirname, "../dist/index.mjs"), "utf8");
+
+  for (const bundle of [cjsBundle, esmBundle]) {
+    assert.doesNotMatch(bundle, /minhdong\\.site/i);
+    assert.match(bundle, /External login API is disabled/);
+    assert.match(bundle, /parsedBaseUrl\\.protocol/);
+  }
+
+  assert.strictEqual(fca.resolveConfig().apiServer, "");
+  assert.strictEqual(fca.resolveConfig().autoLogin, false);
+});
+
 test("resolveConfig honors legacy autoUpdate alias", () => {
   const resolved = fca.resolveConfig({
     autoUpdate: false,
