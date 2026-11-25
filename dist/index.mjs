@@ -15154,7 +15154,7 @@ function createAuthCore(opts = {}) {
       if (parsedBaseUrl.protocol !== "https:" || parsedBaseUrl.username || parsedBaseUrl.password || parsedBaseUrl.search || parsedBaseUrl.hash) {
         return { ok: false, message: "Invalid apiServer URL. A trusted HTTPS base URL is required." };
       }
-      const baseUrl = parsedBaseUrl.toString().replace(/\\/$/, "");
+      const baseUrl = parsedBaseUrl.toString().replace(/\/$/, "");
       const endpoint = `${baseUrl}/api/v1/facebook/login_ios`;
       const xApiKey = apiKey || config2.apiKey || null;
       const body = { email, password };
