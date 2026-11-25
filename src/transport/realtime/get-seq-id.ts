@@ -91,7 +91,7 @@ function createGetSeqID(deps: GetSeqDeps) {
            * re-login after authentication retries are exhausted.
            *
            * TESSA owns authentication recovery.
-           * WonFCA only reports the authentication failure.
+           * HoonFCA only reports the authentication failure.
            */
           logger(
             `getSeqID: authentication retries exhausted; handing recovery to TESSA: ${msg}`,
