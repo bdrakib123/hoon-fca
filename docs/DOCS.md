@@ -1,4 +1,4 @@
-# @cexy/wonfca — Documentation
+# @cexi/hoonfca — Documentation
 
 Comprehensive reference for **version 4.x**. The library is written in TypeScript; the published package ships `dist/` only. Source under `src/` is on [GitHub](https://github.com/bdrakib124/won-fca).
 
@@ -31,14 +31,14 @@ Comprehensive reference for **version 4.x**. The library is written in TypeScrip
 ## 1. Installation & Build
 
 ```bash
-npm install @cexy/wonfca@latest
+npm install @cexi/hoonfca@latest
 ```
 
 To work from source:
 
 ```bash
-git clone https://github.com/bdrakib123/won-fca.git
-cd won-fca
+git clone https://github.com/bdrakib123/hoon-fca.git
+cd hoon-fca
 npm install
 npm run build
 ```
@@ -68,7 +68,7 @@ Additional scripts:
 `package.json` points CommonJS `require` at `dist/cjs.cjs`, so the module itself **is** the `login` function (with all named exports copied onto it):
 
 ```javascript
-const login = require("@cexy/wonfca");
+const login = require("@cexi/hoonfca");
 
 login({ appState: require("./appstate.json") }, (err, api) => {
   if (err) return console.error(err);
@@ -86,7 +86,7 @@ login({ appState: [...] }, { listenEvents: true }, (err, api) => { ... });
 ### 2.2. `login()` — Promise, returns `FcaContext`
 
 ```typescript
-import { login } from "@cexy/wonfca";
+import { login } from "@cexi/hoonfca";
 
 const ctx = await login(
   { appState: require("./appstate.json") },
@@ -108,7 +108,7 @@ Use **`loginAsync`** if you need an explicit async function reference without ov
 ### 2.4. `loginLegacy()` — callback with `FcaContext`
 
 ```javascript
-const { loginLegacy } = require("@cexy/wonfca");
+const { loginLegacy } = require("@cexi/hoonfca");
 
 loginLegacy({ appState: require("./appstate.json") }, (err, ctx) => {
   if (err) return console.error(err);
@@ -163,7 +163,7 @@ Most methods accept an optional trailing `callback(err, result)`. When the callb
 `createFcaClient` wraps the flat API into domain-grouped namespaces:
 
 ```typescript
-import { createFcaClient } from "@cexy/wonfca";
+import { createFcaClient } from "@cexi/hoonfca";
 
 const client = createFcaClient(ctx.api);
 
@@ -243,7 +243,7 @@ When the connection drops, the library schedules a reconnect with debounce and j
 ### 5.1. Creating a bot
 
 ```typescript
-import { createMessengerBot } from "@cexy/wonfca";
+import { createMessengerBot } from "@cexi/hoonfca";
 
 const bot = await createMessengerBot(
   { Cookie: process.env.FCA_COOKIE },
@@ -387,7 +387,7 @@ cp fca-config.example.json fca-config.json
     "enabled": true,
     "install": false,
     "notifyIfCurrent": false,
-    "packageName": "@cexy/wonfca",
+    "packageName": "@cexi/hoonfca",
     "registryUrl": "https://registry.npmjs.org",
     "timeoutMs": 10000
   }
@@ -473,7 +473,7 @@ When Sequelize and the `Thread` model are available, `getThreadInfo` reads from 
 This function is called automatically during the standard bootstrap. For custom login flows, you can invoke it manually:
 
 ```typescript
-import { attachThreadInfoRealtimeSync } from "@cexy/wonfca";
+import { attachThreadInfoRealtimeSync } from "@cexi/hoonfca";
 
 attachThreadInfoRealtimeSync(ctx, models, logger, api);
 ```
@@ -637,7 +637,7 @@ The scheduler domain provides utilities for deferred and periodic task execution
 
 ## 16. Exports Summary
 
-All public exports from `@cexy/wonfca`:
+All public exports from `@cexi/hoonfca`:
 
 | Export                          | Category       | Description                                       |
 |---------------------------------|----------------|---------------------------------------------------|
