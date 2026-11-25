@@ -4,7 +4,7 @@
     "enabled": true,
     "install": false,
     "notifyIfCurrent": false,
-    "packageName": "@cexy/wonfca",
+    "packageName": "@cexi/hoonfca",
     "registryUrl": "https://registry.npmjs.org",
     "timeoutMs": 10000
   },
