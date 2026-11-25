@@ -1,4 +1,4 @@
-# @cexy/wonfca
+# @cexi/hoonfca
 
 An **unofficial** Node.js library for interacting with **Facebook Messenger** through user-session emulation. It speaks the same HTTP/GraphQL and MQTT protocols the browser client uses, giving you programmatic access to messages, threads, reactions, typing indicators, and more — all in TypeScript with full type definitions.
 
@@ -25,14 +25,14 @@ An **unofficial** Node.js library for interacting with **Facebook Messenger** th
 ## Installation
 
 ```bash
-npm install @cexy/wonfca
+npm install @cexi/hoonfca
 ```
 
 If you clone the repository and want to work with the source directly:
 
 ```bash
-git clone https://github.com/bdrakib123/won-fca.git
-cd won-fca
+git clone https://github.com/bdrakib123/hoon-fca.git
+cd hoon-fca
 npm install
 npm run build
 ```
@@ -53,7 +53,7 @@ The build produces these artifacts in `dist/`:
 ### Event-driven bot (recommended)
 
 ```javascript
-const { createMessengerBot } = require("@cexy/wonfca");
+const { createMessengerBot } = require("@cexi/hoonfca");
 
 async function main() {
   const bot = await createMessengerBot(
@@ -86,7 +86,7 @@ main();
 Same pattern as older FCA forks: the required module **is** `login`. Callback gets **`api`**, not `ctx`.
 
 ```javascript
-const login = require("@cexy/wonfca");
+const login = require("@cexi/hoonfca");
 
 login({ appState: require("./appstate.json") }, (err, api) => {
   if (err) return console.error(err);
@@ -103,7 +103,7 @@ Optional FCA options before the callback: `login(credentials, { listenEvents: tr
 ### Async / Promise style
 
 ```javascript
-const { login } = require("@cexy/wonfca");
+const { login } = require("@cexi/hoonfca");
 
 async function main() {
   const ctx = await login({ appState: require("./appstate.json") });
@@ -124,7 +124,7 @@ main();
 
 ## Authentication
 
-With **`require("@cexy/wonfca")`**, you get the **`login`** function directly (see [Quick Start](#quick-start)). With **named** imports / ESM, use `import { login } from "..."` or `import login from "..."`.
+With **`require("@cexi/hoonfca")`**, you get the **`login`** function directly (see [Quick Start](#quick-start)). With **named** imports / ESM, use `import { login } from "..."` or `import login from "..."`.
 
 The library supports multiple credential strategies. Pass **one** of the following to `login()` or `createMessengerBot()`:
 
@@ -157,7 +157,7 @@ api.setMessageReaction(":heart:", messageID);
 Group related methods under domain namespaces for cleaner code:
 
 ```typescript
-import { createFcaClient } from "@cexy/wonfca";
+import { createFcaClient } from "@cexi/hoonfca";
 
 const client = createFcaClient(ctx.api);
 
@@ -177,7 +177,7 @@ Available namespaces: `messages`, `threads`, `users`, `account`, `realtime`, `ht
 ### Creating a bot
 
 ```typescript
-import { createMessengerBot } from "@cexy/wonfca";
+import { createMessengerBot } from "@cexi/hoonfca";
 
 const bot = await createMessengerBot(
   { appState: require("./appstate.json") },
@@ -338,7 +338,7 @@ Built-in scheduling domain for deferred or periodic tasks.
 |------------------------------------------------|---------------------------------------------------------|
 | [docs/DOCS.md](./docs/DOCS.md)                | Full API reference: login, facade, MessengerBot, MQTT, caching |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Source tree layout, bootstrap flow, module design        |
-| [CHANGELOG](https://github.com/bdrakib123/won-fca/blob/main/CHANGELOG.md) | Version history (repository only; not in the npm package) |
+| [CHANGELOG](https://github.com/bdrakib123/hoon-fca/blob/main/CHANGELOG.md) | Version history (repository only; not in the npm package) |
 | [fca-config.example.json](./fca-config.example.json) | Sample configuration file                         |
 
 ---
@@ -358,7 +358,7 @@ This project is licensed under the **Apache License, Version 2.0**. See the [LIC
 
 ## Links
 
-- **npm:** [@cexy/wonfca](https://www.npmjs.com/package/@cexy/wonfca)
-- **GitHub:** [bdrakib123/won-fca](https://github.com/bdrakib123/won-fca)
-- **Issues:** [GitHub Issues](https://github.com/bdrakib123/wonfca/issues)
+- **npm:** [@cexi/hoonfca](https://www.npmjs.com/package/@cexi/hoonfca)
+- **GitHub:** [bdrakib123/hoon-fca](https://github.com/bdrakib123/hoon-fca)
+- **Issues:** [GitHub Issues](https://github.com/bdrakib123/hoon-fca/issues)
 - **Author:** Rakib — [GitHub](https://github.com/bdrakib123)
