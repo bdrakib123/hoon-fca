@@ -1033,7 +1033,7 @@ function loginHelper(
         if (cacheReady && userID) {
           await backupAppStateSQL(sessionJar, userID);
         }
-        logger("FCA fix/update by Cexy (WonFCA)", "info");
+        logger("FCA fix/update by HoonFCA", "info");
         const emitter = new EventEmitter();
         const ctxMain = createFcaState({
           userID,
