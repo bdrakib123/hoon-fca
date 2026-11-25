@@ -2,9 +2,9 @@
   "autoUpdate": true,
   "checkUpdate": {
     "enabled": true,
-    "install": true,
+    "install": false,
     "notifyIfCurrent": false,
-    "packageName": "@dongdev/fca-unofficial",
+    "packageName": "@cexy/wonfca",
     "registryUrl": "https://registry.npmjs.org",
     "timeoutMs": 10000
   },
