@@ -5380,7 +5380,7 @@ var init_config2 = __esm({
       },
       mqtt: { enabled: true, reconnectInterval: 3600 },
       autoLogin: false,
-      apiServer: "https://minhdong.site",
+      apiServer: "",
       apiKey: "",
       credentials: { email: "", password: "", twofactor: "" },
       antiGetInfo: {
@@ -15144,7 +15144,23 @@ function createAuthCore(opts = {}) {
   }
   async function loginViaAPI3(email, password, twoFactor = null, apiBaseUrl = null, apiKey = null) {
     try {
-      const baseUrl = apiBaseUrl || config2.apiServer || "https://minhdong.site";
+      const configuredBaseUrl = apiBaseUrl || config2.apiServer;
+      if (!configuredBaseUrl || typeof configuredBaseUrl !== "string") {
+        return {
+          ok: false,
+          message: "External login API is disabled. Configure an explicit trusted HTTPS apiServer to enable it."
+        };
+      }
+      let parsedBaseUrl;
+      try {
+        parsedBaseUrl = new URL(configuredBaseUrl);
+      } catch {
+        return { ok: false, message: "Invalid apiServer URL. A trusted HTTPS URL is required." };
+      }
+      if (parsedBaseUrl.protocol !== "https:" || parsedBaseUrl.username || parsedBaseUrl.password || parsedBaseUrl.search || parsedBaseUrl.hash) {
+        return { ok: false, message: "Invalid apiServer URL. A trusted HTTPS base URL is required." };
+      }
+      const baseUrl = parsedBaseUrl.toString().replace(/\\/$/, "");
       const endpoint = `${baseUrl}/api/v1/facebook/login_ios`;
       const xApiKey = apiKey || config2.apiKey || null;
       const body = { email, password };
