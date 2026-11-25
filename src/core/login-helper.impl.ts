@@ -386,7 +386,7 @@ async function tryAutoLoginIfNeeded(
    * Normal startup credential authentication is owned by TESSA.
    * MQTT runtime credential authentication is also owned by TESSA.
    *
-   * WonFCA may only:
+   * HoonFCA may only:
    *   1. inspect the supplied appState/cookies
    *   2. refresh the current session
    *   3. try an existing DB backup session
@@ -1050,7 +1050,7 @@ function loginHelper(
         });
         /*
          * IMPORTANT:
-         * WonFCA must never perform credential auto-login from
+         * HoonFCA must never perform credential auto-login from
          * runtime/session recovery.
          *
          * Normal email/password authentication is owned by TESSA's
