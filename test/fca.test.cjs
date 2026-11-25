@@ -424,7 +424,7 @@ test("external login API rejects non-HTTPS endpoints before sending credentials"
 
 test("user and thread cache creation is idempotent under concurrency", async () => {
   const { findOrCreateRecord } = require("../src/database/helpers.ts");
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "wonfca-cache-test-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hoonfca-cache-test-"));
   const sequelize = new Sequelize({
     dialect: "sqlite",
     storage: path.join(directory, "cache.sqlite"),
@@ -539,7 +539,7 @@ test("cache create-or-get preserves unique conflicts and surfaces SQLite failure
 
 test("cache initialization is shared, integrity-checked, and retryable after interruption", async () => {
   const { createCacheInitializer } = require("../src/database/initialize.ts");
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "wonfca-init-test-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hoonfca-init-test-"));
   const sequelize = new Sequelize({
     dialect: "sqlite",
     storage: path.join(directory, "cache.sqlite"),
@@ -573,7 +573,7 @@ test("cache initialization is shared, integrity-checked, and retryable after int
 
 test("corrupt cache initialization fails before schema synchronization", async () => {
   const { createCacheInitializer } = require("../src/database/initialize.ts");
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "wonfca-corrupt-test-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hoonfca-corrupt-test-"));
   const filename = path.join(directory, "cache.sqlite");
   const setup = new Sequelize({ dialect: "sqlite", storage: filename, logging: false });
   let syncCalls = 0;
@@ -628,7 +628,7 @@ test("corrupt cache initialization fails before schema synchronization", async (
 });
 
 test("cache recovery operates on separate copies and never overwrites existing paths", async () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "wonfca-recovery-test-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hoonfca-recovery-test-"));
   const source = path.join(directory, "source.sqlite");
   const snapshot = path.join(directory, "snapshot.sqlite");
   const recovered = path.join(directory, "recovered.sqlite");
