@@ -14,10 +14,10 @@ This project is designed to be **transparent, auditable, and secure by default**
 
 ### Secrets & Credentials
 
-- The library **never phones home** or sends your credentials/AppState to any external host.
-- Any external API usage (such as your own login API) is:
-  - Explicitly configurable via `fca-config.json` (`apiServer`, `apiKey`, etc.).
-  - Performed through standard HTTP clients (`axios`), which you can inspect in `src/utils/request.js` and `module/loginHelper.js`.
+- The library does not send credentials or AppState to a third-party host by default.
+- External credential-login API calls are disabled unless the operator explicitly sets a trusted HTTPS `apiServer` in the private `fca-config.json`.
+- The configured endpoint receives the email, password, and optional 2FA secret supplied to `loginViaAPI` / `tokensViaAPI`. Operators must inspect and trust that endpoint before enabling this feature.
+- Never place credentials or AppState in source control, issue reports, logs, or public configuration examples.
 - You are responsible for:
   - Keeping your `fca-config.json`, AppState, and API keys out of version control.
   - Rotating credentials if you suspect compromise.
