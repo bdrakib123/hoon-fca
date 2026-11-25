@@ -183,7 +183,7 @@ function createListenMqtt(deps: Loose) {
         return;
       }
       if (process.env.OnStatus === undefined) {
-        logger("WonFCA", "info");
+        logger("HoonFCA", "info");
         process.env.OnStatus = "true";
       }
       ctx._cycling = false;
