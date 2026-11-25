@@ -5364,7 +5364,7 @@ var init_config2 = __esm({
     "use strict";
     init_logger();
     DEFAULT_REGISTRY_URL = "https://registry.npmjs.org";
-    DEFAULT_PACKAGE_NAME = "@cexy/wonfca";
+    DEFAULT_PACKAGE_NAME = "@cexi/hoonfca";
     defaultConfig = {
       autoUpdate: true,
       checkUpdate: {
@@ -5399,7 +5399,7 @@ var package_default;
 var init_package = __esm({
   "package.json"() {
     package_default = {
-      name: "@cexy/wonfca",
+      name: "@cexi/hoonfca",
       version: "1.2.2",
       description: "Unofficial Facebook Chat API for Node.js - Interact with Facebook Messenger programmatically",
       main: "dist/cjs.cjs",
@@ -5433,7 +5433,7 @@ var init_package = __esm({
       },
       repository: {
         type: "git",
-        url: "git+https://github.com/bdrakib123/won-fca.git"
+        url: "git+https://github.com/bdrakib123/hoon-fca.git"
       },
       keywords: [
         "facebook",
@@ -5462,9 +5462,9 @@ var init_package = __esm({
       ],
       license: "Apache-2.0",
       bugs: {
-        url: "https://github.com/bdrakib123/won-fca/issues"
+        url: "https://github.com/bdrakib123/hoon-fca/issues"
       },
-      homepage: "https://github.com/cexy/won-fca#readme",
+      homepage: "https://github.com/bdrakib123/hoon-fca#readme",
       engines: {
         node: ">=20.18.1"
       },
