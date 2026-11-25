@@ -386,6 +386,41 @@ require.extensions[".ts"] = function compileTypeScript(module, filename) {
   });
   module._compile(compiled.outputText, filename);
 };
+ 
+test("external login API is disabled without an explicit trusted HTTPS endpoint", async () => {
+  const { createAuthCore } = require("../src/core/auth-helpers.ts");
+  let requestCount = 0;
+  const auth = createAuthCore({
+    config: { apiServer: "" },
+    axiosBase: async () => {
+      requestCount += 1;
+      return { status: 200, data: { uid: "123" } };
+    }
+  });
+
+  const result = await auth.loginViaAPI("user@example.invalid", "not-a-real-password");
+  assert.strictEqual(result.ok, false);
+  assert.match(result.message, /disabled/i);
+  assert.strictEqual(requestCount, 0);
+});
+
+test("external login API rejects non-HTTPS endpoints before sending credentials", async () => {
+  const { createAuthCore } = require("../src/core/auth-helpers.ts");
+  let requestCount = 0;
+  const auth = createAuthCore({
+    config: { apiServer: "http://untrusted.example" },
+    axiosBase: async () => {
+      requestCount += 1;
+      return { status: 200, data: { uid: "123" } };
+    }
+  });
+
+  const result = await auth.loginViaAPI("user@example.invalid", "not-a-real-password");
+  assert.strictEqual(result.ok, false);
+  assert.match(result.message, /HTTPS/i);
+  assert.strictEqual(requestCount, 0);
+});
+
 
 test("user and thread cache creation is idempotent under concurrency", async () => {
   const { findOrCreateRecord } = require("../src/database/helpers.ts");
