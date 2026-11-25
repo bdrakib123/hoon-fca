@@ -796,7 +796,7 @@ test("published CJS and ESM bundles contain the secure external-login defaults",
   for (const bundle of [cjsBundle, esmBundle]) {
     assert.doesNotMatch(bundle, /minhdong\\.site/i);
     assert.match(bundle, /External login API is disabled/);
-    assert.match(bundle, /parsedBaseUrl\\.protocol/);
+    assert.match(bundle, /\.protocol\s*!==\s*["\']https:/);
   }
 
   assert.strictEqual(fca.resolveConfig().apiServer, "");
