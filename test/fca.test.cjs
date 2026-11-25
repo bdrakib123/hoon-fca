@@ -783,7 +783,7 @@ test("package export validation checks files without loading package entrypoints
   });
   assert.strictEqual(result.status, 0, result.stderr);
   const report = JSON.parse(result.stdout);
-  assert.strictEqual(report.package, "@cexy/wonfca");
+  assert.strictEqual(report.package, "@cexi/hoonfca");
   assert.strictEqual(report.targets.require, "./dist/cjs.cjs");
   assert.strictEqual(report.targets.import, "./dist/index.mjs");
   assert.strictEqual(report.targets.types, "./dist/index.d.ts");
