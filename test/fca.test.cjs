@@ -792,8 +792,10 @@ test("package export validation checks files without loading package entrypoints
 test("published CJS and ESM bundles contain the secure external-login defaults", () => {
   const cjsBundle = fs.readFileSync(path.join(__dirname, "../dist/index.js"), "utf8");
   const esmBundle = fs.readFileSync(path.join(__dirname, "../dist/index.mjs"), "utf8");
+  const packageVersion = require("../package.json").version;
 
   for (const bundle of [cjsBundle, esmBundle]) {
+    assert.ok(bundle.includes(`version: "${packageVersion}"`), `bundle version must match package.json (${packageVersion})`);
     assert.doesNotMatch(bundle, /minhdong\\.site/i);
     assert.match(bundle, /External login API is disabled/);
     assert.match(bundle, /\.protocol\s*!==\s*["\']https:/);
