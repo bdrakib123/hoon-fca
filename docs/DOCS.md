@@ -1,6 +1,6 @@
 # @cexi/hoonfca — Documentation
 
-Comprehensive API reference for `@cexi/hoonfca@1.0.0`. The library is written in TypeScript; the published package ships `dist/` only. Source under `src/` is on [GitHub](https://github.com/bdrakib124/won-fca).
+Comprehensive API reference for `@cexi/hoonfca@1.0.0`. The library is written in TypeScript; the published package ships `dist/` only. Source under `src/` is on [GitHub](https://github.com/bdrakib123/hoon-fca).
 
 ---
 
