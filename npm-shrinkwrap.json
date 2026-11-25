@@ -1,12 +1,12 @@
 {
-  "name": "@cexy/wonfca",
-  "version": "1.2.2",
+  "name": "@cexi/hoonfca",
+  "version": "1.0.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
-      "name": "@cexy/wonfca",
-      "version": "1.2.2",
+      "name": "@cexi/hoonfca",
+      "version": "1.0.0",
       "license": "Apache-2.0",
       "dependencies": {
         "axios": "^1.13.5",
