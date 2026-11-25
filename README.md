@@ -134,7 +134,7 @@ The library supports multiple credential strategies. Pass **one** of the followi
 | `Cookie`       | A raw cookie header string, e.g. `"c_user=...; xs=...; ..."`.                                              |
 | `email` + `password` | Web login credentials. Prone to checkpoints and CAPTCHAs; **not recommended** for long-running bots.  |
 
-You can also use `loginViaAPI` / `tokensViaAPI` for token-based authentication through an external API server (see `fca-config.json` → `apiServer`).
+Optional `loginViaAPI` / `tokensViaAPI` support is disabled unless you explicitly configure a trusted HTTPS `apiServer` in your private `fca-config.json`. No third-party login server is used by default. Prefer `appState` or `Cookie` authentication for long-running bots.
 
 ---
 
