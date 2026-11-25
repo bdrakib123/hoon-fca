@@ -5267,6 +5267,8 @@ function resolveConfig(input) {
   config2.remoteControl = deepMerge(defaultConfig.remoteControl, config2.remoteControl || {});
   config2.checkUpdate = deepMerge(defaultConfig.checkUpdate, config2.checkUpdate || {});
   config2.autoLogin = normalizeBoolean(config2.autoLogin, defaultConfig.autoLogin);
+  config2.apiServer = normalizeString(config2.apiServer, defaultConfig.apiServer);
+  config2.apiKey = normalizeString(config2.apiKey, defaultConfig.apiKey);
   config2.autoUpdate = normalizeBoolean(rawInput.autoUpdate, defaultConfig.autoUpdate);
   config2.mqtt.enabled = normalizeBoolean(config2.mqtt.enabled, defaultConfig.mqtt.enabled);
   config2.mqtt.reconnectInterval = normalizeNumber(
@@ -5400,7 +5402,7 @@ var init_package = __esm({
   "package.json"() {
     package_default = {
       name: "@cexi/hoonfca",
-      version: "1.2.2",
+      version: "1.0.0",
       description: "Unofficial Facebook Chat API for Node.js - Interact with Facebook Messenger programmatically",
       main: "dist/cjs.cjs",
       types: "dist/index.d.ts",
@@ -5426,7 +5428,7 @@ var init_package = __esm({
       scripts: {
         test: "node ./test/fca.test.cjs",
         "test:build": "npm run build && node ./test/fca.test.cjs",
-        lint: "eslint .",
+        lint: "eslint --ext .cjs scripts test",
         typecheck: "tsc -p tsconfig.typecheck.json --noEmit",
         build: "tsup src/index.ts --format cjs,esm --dts --clean --out-dir dist --external gradient-string --external form-data --external combined-stream && node scripts/cjs-bridge.cjs",
         "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly"
@@ -13770,7 +13772,7 @@ var require_connect_mqtt = __commonJS({
             return;
           }
           if (process.env.OnStatus === void 0) {
-            logger("WonFCA", "info");
+            logger("HoonFCA", "info");
             process.env.OnStatus = "true";
           }
           ctx._cycling = false;
@@ -16520,7 +16522,7 @@ function loginHelper(appState, Cookie, email, password, globalOptions, callback)
       if (cacheReady && userID) {
         await backupAppStateSQL(sessionJar, userID);
       }
-      logger_default("FCA fix/update by Cexy (WonFCA)", "info");
+      logger_default("FCA fix/update by HoonFCA", "info");
       const emitter = new EventEmitter2();
       const ctxMain = createFcaState({
         userID,
