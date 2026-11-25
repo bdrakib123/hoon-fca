@@ -345,7 +345,7 @@ Built-in scheduling domain for deferred or periodic tasks.
 
 ## Requirements
 
-- **Node.js** >= 14.0.0 (LTS recommended)
+- **Node.js** >= 20.18.1
 - **npm** or any compatible package manager
 
 ---
