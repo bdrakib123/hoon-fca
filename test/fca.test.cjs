@@ -386,6 +386,41 @@ require.extensions[".ts"] = function compileTypeScript(module, filename) {
   });
   module._compile(compiled.outputText, filename);
 };
+ 
+test("external login API is disabled without an explicit trusted HTTPS endpoint", async () => {
+  const { createAuthCore } = require("../src/core/auth-helpers.ts");
+  let requestCount = 0;
+  const auth = createAuthCore({
+    config: { apiServer: "" },
+    axiosBase: async () => {
+      requestCount += 1;
+      return { status: 200, data: { uid: "123" } };
+    }
+  });
+
+  const result = await auth.loginViaAPI("user@example.invalid", "not-a-real-password");
+  assert.strictEqual(result.ok, false);
+  assert.match(result.message, /disabled/i);
+  assert.strictEqual(requestCount, 0);
+});
+
+test("external login API rejects non-HTTPS endpoints before sending credentials", async () => {
+  const { createAuthCore } = require("../src/core/auth-helpers.ts");
+  let requestCount = 0;
+  const auth = createAuthCore({
+    config: { apiServer: "http://untrusted.example" },
+    axiosBase: async () => {
+      requestCount += 1;
+      return { status: 200, data: { uid: "123" } };
+    }
+  });
+
+  const result = await auth.loginViaAPI("user@example.invalid", "not-a-real-password");
+  assert.strictEqual(result.ok, false);
+  assert.match(result.message, /HTTPS/i);
+  assert.strictEqual(requestCount, 0);
+});
+
 
 test("user and thread cache creation is idempotent under concurrency", async () => {
   const { findOrCreateRecord } = require("../src/database/helpers.ts");
@@ -754,6 +789,20 @@ test("package export validation checks files without loading package entrypoints
   assert.strictEqual(report.targets.types, "./dist/index.d.ts");
 });
 
+test("published CJS and ESM bundles contain the secure external-login defaults", () => {
+  const cjsBundle = fs.readFileSync(path.join(__dirname, "../dist/index.js"), "utf8");
+  const esmBundle = fs.readFileSync(path.join(__dirname, "../dist/index.mjs"), "utf8");
+
+  for (const bundle of [cjsBundle, esmBundle]) {
+    assert.doesNotMatch(bundle, /minhdong\\.site/i);
+    assert.match(bundle, /External login API is disabled/);
+    assert.match(bundle, /parsedBaseUrl\\.protocol/);
+  }
+
+  assert.strictEqual(fca.resolveConfig().apiServer, "");
+  assert.strictEqual(fca.resolveConfig().autoLogin, false);
+});
+
 test("resolveConfig honors legacy autoUpdate alias", () => {
   const resolved = fca.resolveConfig({
     autoUpdate: false,
@@ -942,6 +991,21 @@ test("optional live login works when credentials are provided", async () => {
   };
 });
 
+test("external login API does not follow redirects with credentials", async () => {
+  const { createAuthCore } = require("../src/core/auth-helpers.ts");
+  let requestOptions;
+  const auth = createAuthCore({
+    config: { apiServer: "https://trusted.example" },
+    axiosBase: async (options) => {
+      requestOptions = options;
+      return { status: 401, data: { error: "test response" } };
+    }
+  });
+
+  await auth.loginViaAPI("user@example.invalid", "not-a-real-password");
+  assert.strictEqual(requestOptions.maxRedirects, 0);
+});
+
 async function main() {
   let passed = 0;
   let skipped = 0;
@@ -974,3 +1038,5 @@ main().catch((error) => {
   console.error(error && error.stack ? error.stack : error);
   process.exitCode = 1;
 });
+
+

@@ -61,7 +61,7 @@ export const defaultConfig: FcaConfig = {
   },
   mqtt: { enabled: true, reconnectInterval: 3600 },
   autoLogin: false,
-  apiServer: "https://minhdong.site",
+  apiServer: "",
   apiKey: "",
   credentials: { email: "", password: "", twofactor: "" },
   antiGetInfo: {
@@ -161,6 +161,8 @@ export function resolveConfig(input?: Loose): FcaConfig {
   config.checkUpdate = deepMerge(defaultConfig.checkUpdate, config.checkUpdate || {});
 
   config.autoLogin = normalizeBoolean(config.autoLogin, defaultConfig.autoLogin);
+  config.apiServer = normalizeString(config.apiServer, defaultConfig.apiServer);
+  config.apiKey = normalizeString(config.apiKey, defaultConfig.apiKey);
   config.autoUpdate = normalizeBoolean(rawInput.autoUpdate, defaultConfig.autoUpdate);
 
   config.mqtt.enabled = normalizeBoolean(config.mqtt.enabled, defaultConfig.mqtt.enabled);

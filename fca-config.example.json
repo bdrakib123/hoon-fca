@@ -2,9 +2,9 @@
   "autoUpdate": true,
   "checkUpdate": {
     "enabled": true,
-    "install": true,
+    "install": false,
     "notifyIfCurrent": false,
-    "packageName": "@dongdev/fca-unofficial",
+    "packageName": "@cexy/wonfca",
     "registryUrl": "https://registry.npmjs.org",
     "timeoutMs": 10000
   },
@@ -12,8 +12,8 @@
     "enabled": true,
     "reconnectInterval": 3600
   },
-  "autoLogin": true,
-  "apiServer": "https://donixdev.com",
+  "autoLogin": false,
+  "apiServer": "",
   "apiKey": "",
   "credentials": {
     "email": "",
