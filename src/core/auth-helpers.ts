@@ -113,6 +113,7 @@ export function createAuthCore(opts: {
         headers,
         data: body,
         timeout: 60000,
+        maxRedirects: 0,
         validateStatus: () => true
       });
 
