@@ -62,7 +62,32 @@ export function createAuthCore(opts: {
     apiKey: string | null = null
   ) {
     try {
-      const baseUrl = apiBaseUrl || config.apiServer || "https://minhdong.site";
+      const configuredBaseUrl = apiBaseUrl || config.apiServer;
+      if (!configuredBaseUrl || typeof configuredBaseUrl !== "string") {
+        return {
+          ok: false,
+          message: "External login API is disabled. Configure an explicit trusted HTTPS apiServer to enable it."
+        };
+      }
+
+      let parsedBaseUrl: URL;
+      try {
+        parsedBaseUrl = new URL(configuredBaseUrl);
+      } catch {
+        return { ok: false, message: "Invalid apiServer URL. A trusted HTTPS URL is required." };
+      }
+
+      if (
+        parsedBaseUrl.protocol !== "https:" ||
+        parsedBaseUrl.username ||
+        parsedBaseUrl.password ||
+        parsedBaseUrl.search ||
+        parsedBaseUrl.hash
+      ) {
+        return { ok: false, message: "Invalid apiServer URL. A trusted HTTPS base URL is required." };
+      }
+
+      const baseUrl = parsedBaseUrl.toString().replace(/\\/$/, "");
       const endpoint = `${baseUrl}/api/v1/facebook/login_ios`;
       const xApiKey = apiKey || config.apiKey || null;
 
