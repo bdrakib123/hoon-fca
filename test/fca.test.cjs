@@ -1023,3 +1023,19 @@ main().catch((error) => {
   console.error(error && error.stack ? error.stack : error);
   process.exitCode = 1;
 });
+
+
+test("external login API does not follow redirects with credentials", async () => {
+  const { createAuthCore } = require("../src/core/auth-helpers.ts");
+  let requestOptions;
+  const auth = createAuthCore({
+    config: { apiServer: "https://trusted.example" },
+    axiosBase: async (options) => {
+      requestOptions = options;
+      return { status: 401, data: { error: "test response" } };
+    }
+  });
+
+  await auth.loginViaAPI("user@example.invalid", "not-a-real-password");
+  assert.strictEqual(requestOptions.maxRedirects, 0);
+});
