@@ -16455,11 +16455,23 @@ function loginHelper(appState, Cookie, email, password, globalOptions, callback)
                 userID = activateUID2;
                 logger_default(`Session activated on second try! Found valid USER_ID in HTML: ${userID}`, "info");
               } else {
-                logger_default(`WARNING: HTML still shows USER_ID=${finalHtmlUID || "none"} but cookies have valid UID=${userID}. Proceeding with cookie-based UID.`, "warn");
+                logger_default(
+                  `Facebook session validation failed: HTML has no authenticated USER_ID (cookie UID present: ${isValidUID(userID)}).`,
+                  "error"
+                );
+                throw new Error(
+                  "Facebook session validation failed: authenticated USER_ID was not present in Facebook page HTML; c_user cookie alone is insufficient."
+                );
               }
             }
           } catch (activateErr) {
-            logger_default(`Failed to activate session: ${errMsg(activateErr)}. Proceeding with cookie-based UID.`, "warn");
+            logger_default(
+              `Facebook session activation/validation failed: ${errMsg(activateErr)}`,
+              "error"
+            );
+            throw new Error(
+              `Facebook session validation failed: ${errMsg(activateErr)}`
+            );
           }
         } else {
           logger_default(`Final HTML validation failed - USER_ID from HTML: ${finalHtmlUID || "none"}, from cookies: ${userID || "none"}`, "error");
